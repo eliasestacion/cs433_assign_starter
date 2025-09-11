@@ -1,7 +1,7 @@
 /**
  * Assignment 1: priority queue of processes
  * @file readyqueue.h
- * @author ??? (TODO: your name)
+ * @author Elias Estacion and Meliton Rojas
  * @brief ReadyQueue is a queue of PCB's that are in the READY state to be scheduled to run.
  * It should be a priority queue such that the process with the highest priority can be selected next.
  * @version 0.1
@@ -20,6 +20,17 @@ class ReadyQueue {
 private:
     // TODO: add your private member variables here
     // choose a data structure for the ReadyQueue. No STL class is allowed.
+    // Array-based binary max-heap of PCB*.
+    PCB** heap_;       // dynamic array holding PCB* in heap order
+    int   size_;       // current number of elements
+    int   capacity;   // current allocated capacity
+
+    // Helpers
+    void shiftUp(int idx);          // restore heap property upwards
+    void shiftDown(int idx);        // restore heap property downwards
+    void ensureCapacity();         // grow array when needed
+    static int getPriority(const PCB* p); // extract priority from PCB
+    static void swap(PCB*& a, PCB*& b);
 
 public:
     /**

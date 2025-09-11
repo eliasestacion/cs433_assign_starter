@@ -30,7 +30,7 @@ PCBTable::PCBTable(int size)
 PCBTable::~PCBTable() {
    if (pcbArray) {
 
-    for (int i = 0; i < tableSize; ++i) {
+    for (int i = 1; i <= tableSize; ++i) {
         delete pcbArray[i];
         pcbArray[i] = nullptr;
     }
