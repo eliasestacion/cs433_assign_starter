@@ -82,18 +82,21 @@ public:
      * @param state
      */
     void setState(ProcState state) {
-        this->state = state;
+        this->state = state;    // Updates the current state of the PCB.
     }
 
     /**
      * @brief Change the priority of the PCB.
+     * 
+     * This function sets the priprity of the PCB while ensuring that
+     * the value stays in the range of 1 to 50.
      * @param priority
      */
     void setPriority(unsigned int priority) {
-        if (priority <1) {
-            this->priority = 1;
+        if (priority < 1) {
+            this->priority = 1; // If a value is less than  1, the priority is set to 1.
         } else if (priority > 50) {
-            this->priority = 50;
+            this->priority = 50;    // If a value is greater than 50, the priority is set to 50.
         } else {
             this->priority = priority;
         }

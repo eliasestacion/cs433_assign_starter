@@ -18,8 +18,8 @@
  */
 class ReadyQueue {
 private:
-    // TODO: add your private member variables here
     // choose a data structure for the ReadyQueue. No STL class is allowed.
+    
     // Array-based binary max-heap of PCB*.
     PCB** heap_;       // dynamic array holding PCB* in heap order
     int   size_;       // current number of elements
@@ -29,7 +29,7 @@ private:
     void shiftUp(int idx);          // restore heap property upwards
     void shiftDown(int idx);        // restore heap property downwards
     void ensureCapacity();         // grow array when needed
-    static int getPriority(const PCB* p); // extract priority from PCB
+    static int getPriority(PCB* p); // extract priority from PCB
     static void swap(PCB*& a, PCB*& b);
 
 public:

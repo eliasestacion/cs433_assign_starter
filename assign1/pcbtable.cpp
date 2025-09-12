@@ -12,12 +12,19 @@
 /**
  * @brief Construct a new PCBTable object of the given size (number of PCBs)
  *
+ * This function creates a dynamic array of PCB pointers with the capacity that has been requested.
+ * All entries are initialized to nullptr.
+ * 
  * @param size: the capacity of the PCBTable
  */
 PCBTable::PCBTable(int size)
    : pcbArray(nullptr), tableSize(size) {
     if (tableSize < 1) tableSize = 1;
+
+    // allocate the array of PCB pointers
     pcbArray = new PCB*[tableSize];
+
+    // initialize all slots to nullptr
     for (int i = 0; i < tableSize; ++i) {
         pcbArray[i] = nullptr;
     }
@@ -29,14 +36,18 @@ PCBTable::PCBTable(int size)
  */
 PCBTable::~PCBTable() {
    if (pcbArray) {
-
-    for (int i = 1; i <= tableSize; ++i) {
+    // delete all PCB objects stored in the tble
+    for (int i = 0; i < tableSize; ++i) {
         delete pcbArray[i];
         pcbArray[i] = nullptr;
     }
+
+    // free the array of PCB* itself
     delete[] pcbArray;
     pcbArray = nullptr;
    }
+
+   // mark table as empty
    tableSize = 0;
 }
 
@@ -47,9 +58,12 @@ PCBTable::~PCBTable() {
  * @return PCB*: pointer to the PCB at index "idx"
  */
 PCB* PCBTable::getPCB(unsigned int idx) {
+    // check that array exists and that the index is within bounds
     if (!pcbArray || idx >= static_cast<unsigned int>(tableSize)) {
         return nullptr;
     }
+    
+    // return the PCB pointer stored at idx
     return pcbArray[idx];
 }
 
@@ -64,7 +78,9 @@ void PCBTable::addPCB(PCB *pcb, unsigned int idx) {
         return;
     }
 
+    // delete old PCB if slot is occupied
     delete pcbArray[idx];
 
+    // store new PCB in this slot
     pcbArray[idx] = pcb;
 }
