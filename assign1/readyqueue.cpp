@@ -1,3 +1,13 @@
+/**
+ * Assignment 1: priority queue of processes
+ * @file readyqueue.cpp
+ * @author Elias Estacion and Meliton Rojas
+ * @brief Implementation of ReadyQueue, a priority queue of PCB objects in the READY state.
+ *        The highest-priority READY process is selected next.
+ * 
+ * @version 0.1
+ */
+
 #include <iostream>
 #include "readyqueue.h"
 
@@ -5,23 +15,48 @@ using namespace std;
 
 // You must complete the all parts marked as "TODO". Delete "TODO" after you are done.
 //  Remember to add sufficient comments to your code
+
+/**
+ * @brief Return the effective priority used by the ready queue heap.
+ *
+ * Returns -1 for nullptr or for PCBs that are not in the READY state so they
+ * will be below any valid [1..50] priority in the max-heap.
+ *
+ * @param p Pointer to a PCB whose priority is queried.
+ * @return int The PCB's priority if READY, otherwise -1.
+ */
 int ReadyQueue::getPriority(PCB* p) {
     if (p == nullptr)
-        return -1; // lower than any valid [1..50] priority
+        return -1; 
     if (p->getState() != ProcState::READY)
         return -1;
     return static_cast<int>(p->getPriority());
 }
 
+/**
+ * @brief Swap two PCB* references.
+ *
+ * Utility used by heap maintenance routines.
+ * Does not modify PCB contents, only exchanges the pointers in the heap array.
+ *
+ * @param a Reference to first PCB*.
+ * @param b Reference to second PCB*.
+ */
 void ReadyQueue::swap(PCB *&a, PCB *&b) {
     PCB *t = a;
     a = b;
     b = t;
 }
 
+/**
+ * @brief Ensure the underlying array has capacity for at least one more element.
+ *
+ * If full, allocate a new array with doubled capacity (or 16 if starting from 0),
+ * copy existing elements, initialize extra slots to nullptr, and free the old storage.
+ */
 void ReadyQueue::ensureCapacity() {
     if (size_ < capacity)
-        return; // still space available, nothing to do
+        return;
     int newCap = (capacity == 0 ? 16 : capacity * 2);
     PCB **newHeap = new PCB *[newCap];
 
@@ -30,7 +65,7 @@ void ReadyQueue::ensureCapacity() {
         newHeap[i] = heap_[i];
     }
 
-    // Initialize any extra slots to nullptr (optional, but safer)
+    // Initialize any extra slots to nullptr
     for (int i = size_; i < newCap; ++i) {
         newHeap[i] = nullptr;
     }
@@ -42,8 +77,15 @@ void ReadyQueue::ensureCapacity() {
     capacity = newCap;
 }
 
+/**
+ * @brief Percolate an element up the heap to restore the max-heap property.
+ *
+ * Compares the node at @p idx with its parent and swaps while the child has
+ * higher effective priority than the parent.
+ *
+ * @param idx 0-based index of the node to shift up.
+ */
 void ReadyQueue::shiftUp(int idx) {
-    // 0-based max-heap
     // Continue until we reach the root (index 0)
     while (idx > 0) {
         int parent = (idx - 1) / 2; // parent index in 0-based heap
@@ -54,11 +96,19 @@ void ReadyQueue::shiftUp(int idx) {
             idx = parent; // move up to parent's position
         }
         else {
-            break; // heap property satisfied
+            break;
         }
     }
 }
 
+/**
+ * @brief Percolate an element down the heap to restore the max-heap property.
+ *
+ * Chooses the higher-priority child and swaps while the child outranks the
+ * current node by effective priority.
+ *
+ * @param idx 0-based index of the node to shift down.
+ */
 void ReadyQueue::shiftDown(int idx)
 {
     while (true) {
@@ -88,14 +138,17 @@ void ReadyQueue::shiftDown(int idx)
 
 /**
  * @brief Constructor for the ReadyQueue class.
+ * Initializes an empty heap and allocates initial capacity.
+ * All slots are set to nullptr inside ensureCapacity().
  */
 ReadyQueue::ReadyQueue() : heap_(nullptr), size_(0), capacity(0) {
-    //  All slots are set to nullptr inside ensureCapacity().
     ensureCapacity();
 }
 
 /**
- *@brief Destructor
+ * @brief Destructor
+ * Cleans up the dynamically allocated array. Does NOT delete PCB objects
+ * since they are owned by the PCBTable.
  */
 ReadyQueue::~ReadyQueue() {
     //  Do NOT delete PCB objects (owned by PCBTable). Only free our array.
@@ -108,17 +161,17 @@ ReadyQueue::~ReadyQueue() {
 /**
  * @brief Add a PCB representing a process into the ready queue.
  *
+ * Normalizes the PCB's priority to the allowed range, marks
+ * the PCB state as READY, inserts it into the heap, and restores heap order.
+ *
  * @param pcbPtr: the pointer to the PCB to be added
  */
 void ReadyQueue::addPCB(PCB *pcbPtr) {
-    //  When adding a PCB to the queue, you must change its state to READY.
     if (!pcbPtr)
-        return; // ignore null inserts
+        return;
 
-    // This clamps the priority into 1..50
     pcbPtr->setPriority(pcbPtr->getPriority());
-
-    // Any process added to the ready queue must be marked READY
+    // When adding a PCB to the queue, you must change its state to READY.
     pcbPtr->setState(ProcState::READY);
 
     // Make sure there is space in the heap
@@ -137,12 +190,14 @@ void ReadyQueue::addPCB(PCB *pcbPtr) {
 /**
  * @brief Remove and return the PCB with the highest priority from the queue
  *
- * @return PCB*: the pointer to the PCB with the highest priority
+ * Replaces the root with the last element, re-heapifies, and marks the removed
+ * PCB's state as RUNNING. Returns nullptr if the queue is empty.
+ *
+ * @return PCB*: the pointer to the PCB with the highest priority, or nullptr if empty.
  */
 PCB *ReadyQueue::removePCB() {
-    //  When removing a PCB from the queue, you must change its state to RUNNING.
     if (size_ == 0) {
-        return nullptr; // queue empty
+        return nullptr;
     }
 
     // Highest-priority PCB is always at the root (index 0)
@@ -172,9 +227,10 @@ int ReadyQueue::size() {
 
 /**
  * @brief Display the PCBs in the queue.
+ *
+ * Prints a header and then each PCB in the heap's current array order
  */
 void ReadyQueue::displayAll() {
-    // Print header for test1 output
     std::cout << "Display Processes in ReadyQueue:\n";
 
     // Print the heap it its current array order
