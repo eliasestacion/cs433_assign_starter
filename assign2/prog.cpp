@@ -31,6 +31,18 @@ using namespace std;
 int parse_command(char command[], char *args[])
 {
     // TODO: implement this function
+    // Remove trailing newline, if any
+    size_t n = strlen(command);
+    if (n > 0 && command[n - 1] == '\n') command[n - 1] = '\0';
+
+    int argc = 0;
+    char *tok = strtok(command, " \t");
+    while (tok != nullptr && argc < (MAX_LINE / 2)) {
+        args[argc++] = tok;
+        tok = strtok(nullptr, " \t");
+    }
+    args[argc] = nullptr;
+    return argc;
 }
 
 // TODO: Add additional functions if you need
@@ -48,6 +60,12 @@ int main(int argc, char *argv[])
     int should_run = 1;           /* flag to determine when to exit program */
 
     // TODO: Add additional variables for the implementation.
+    // Additional variables for the implementation.
+    char* argv_exec[MAX_LINE / 2 + 1];      // cleaned argv for exec
+
+    // Simple history buffer: only the most recent full command line
+    char last_cmd[MAX_LINE] = { 0 };
+    bool has_history = false;
 
     while (should_run)
     {
@@ -56,7 +74,10 @@ int main(int argc, char *argv[])
         // Read the input command
         fgets(command, MAX_LINE, stdin);
         // Parse the input command
-        int num_args = parse_command(command, args);
+        if (fgets(command, MAX_LINE, stdin) == nullptr) {
+            printf("\n");
+            break;
+        }
 
         // TODO: Add your code for the implementation
         /**
@@ -65,6 +86,143 @@ int main(int argc, char *argv[])
          * (2) the child process will invoke execvp()
          * (3) parent will invoke wait() unless command included &
          */
+
+         if (num_args == 0) continue;
+
+        // Built-in: exit
+        if (strcmp(args[0], "exit") == 0) {
+            should_run = 0;
+            continue;
+        }
+
+        // History (!!)
+        if (strcmp(args[0], "!!") == 0 && num_args == 1) {
+            if (!has_history) {
+                fprintf(stderr, "No commands in history.\n");
+                continue;
+            }
+            // Echo the most recent command and re-parse it
+            printf("%s\n", last_cmd);
+            char replay_buf[MAX_LINE];
+            strncpy(replay_buf, last_cmd, sizeof(replay_buf) - 1);
+            replay_buf[sizeof(replay_buf) - 1] = '\0';
+            num_args = parse_command(replay_buf, args);
+            if (num_args <= 0) continue;
+            // last_cmd already is the most recent; repeating keeps it as "next" too
+        } else {
+            // Save current command (rebuilt from tokens) as history
+            last_cmd[0] = '\0';
+            for (int i = 0; i < num_args; ++i) {
+                if (i) strncat(last_cmd, " ", sizeof(last_cmd) - strlen(last_cmd) - 1);
+                strncat(last_cmd, args[i], sizeof(last_cmd) - strlen(last_cmd) - 1);
+            }
+            has_history = true;
+        }
+
+        // Build argv, detect &, redirection, and a single pipe
+        int run_bg = 0;
+        const char* infile = nullptr;
+        const char* outfile = nullptr;
+        int redir_mode = 0; // 0 none, 1 '<', 2 '>'
+        int pipe_pos = -1;
+
+        int argc_clean = build_argv(args, num_args, argv_exec,
+                                    run_bg, infile, outfile, redir_mode, pipe_pos);
+        if (argc_clean < 0) {
+            fprintf(stderr, "syntax error\n");
+            continue;
+        }
+
+        // Handle pipeline (no redirection allowed with a pipe per spec)
+        if (pipe_pos != -1) {
+            if (redir_mode != 0) {
+                fprintf(stderr, "Redirection with pipe not supported\n");
+                continue;
+            }
+            if (pipe_pos == 0 || pipe_pos >= argc_clean) {
+                fprintf(stderr, "syntax error near '|'\n");
+                continue;
+            }
+
+            // Split argv_exec into left and right
+            char* left_argv[MAX_LINE / 2 + 1];
+            for (int i = 0; i < pipe_pos; ++i) left_argv[i] = argv_exec[i];
+            left_argv[pipe_pos] = nullptr;
+
+            char* right_argv[MAX_LINE / 2 + 1];
+            int rlen = 0;
+            for (int i = pipe_pos; i < argc_clean; ++i) right_argv[rlen++] = argv_exec[i];
+            right_argv[rlen] = nullptr;
+
+            int fds[2];
+            if (pipe(fds) < 0) {
+                perror("pipe");
+                continue;
+            }
+
+            pid_t c1 = fork();
+            if (c1 < 0) {
+                perror("fork");
+                close(fds[0]); close(fds[1]);
+                continue;
+            }
+            if (c1 == 0) {
+                // Left child: stdout -> pipe write
+                if (dup2(fds[1], STDOUT_FILENO) < 0) { perror("dup2"); _exit(1); }
+                close(fds[0]); close(fds[1]);
+                execvp(left_argv[0], left_argv);
+                print_cmd_not_found();
+                _exit(127);
+            }
+
+            pid_t c2 = fork();
+            if (c2 < 0) {
+                perror("fork");
+                close(fds[0]); close(fds[1]);
+                int st; waitpid(c1, &st, 0);
+                continue;
+            }
+            if (c2 == 0) {
+                // Right child: stdin <- pipe read
+                if (dup2(fds[0], STDIN_FILENO) < 0) { perror("dup2"); _exit(1); }
+                close(fds[0]); close(fds[1]);
+                execvp(right_argv[0], right_argv);
+                print_cmd_not_found();
+                _exit(127);
+            }
+
+            // Parent
+            close(fds[0]); close(fds[1]);
+            if (!run_bg) {
+                int st;
+                while (waitpid(c1, &st, 0) == -1 && errno == EINTR) {}
+                while (waitpid(c2, &st, 0) == -1 && errno == EINTR) {}
+            }
+            continue;
+        }
+
+        // No pipe: handle (at most one) redirection and background
+        if (argc_clean == 0) continue;
+
+        pid_t pid = fork();
+        if (pid < 0) {
+            perror("fork");
+            continue;
+        }
+        if (pid == 0) {
+            // Child: apply redirection (if any), then exec
+            if (apply_redirection(infile, outfile, redir_mode) != 0) _exit(1);
+            execvp(argv_exec[0], argv_exec);
+            print_cmd_not_found();
+            _exit(127);
+        } else {
+            if (!run_bg) {
+                int status = 0;
+                while (waitpid(pid, &status, 0) == -1 && errno == EINTR) {}
+            }
+        }
+    
+
     }
     return 0;
 }
