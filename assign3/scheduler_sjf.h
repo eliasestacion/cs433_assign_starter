@@ -16,6 +16,21 @@
 class SchedulerSJF : public Scheduler {
 private:
     // TODO: add necessary member variables here for your implementation
+    // Snapshot of processes in their input (arrival) order.
+    
+    std::vector<PCB> tasks_;
+
+    // Per-process accounting used for output.
+    struct Stat {
+        std::string name; // process name
+        int burst = 0;    // CPU burst time
+        int waiting = 0;  // total time spent waiting in ready queue
+        int turnaround = 0; // completion time (since arrival is 0)
+    };
+    std::vector<Stat> stats_;
+
+    // Has simulate() been executed?
+    bool simulated_ = false;
 
 public:
     /**

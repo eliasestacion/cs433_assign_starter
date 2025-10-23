@@ -18,6 +18,22 @@ class SchedulerPriority : public Scheduler {
 private:
     // TODO: add necessary member variables here for your implementation
 
+    // Snapshot of processes in input order.
+    std::vector<PCB> tasks_;
+
+    // Per-process accounting for output.
+    struct Stat {
+        std::string name;  // process name
+        int priority = 0;  // process priority
+        int burst = 0;     // CPU burst time
+        int waiting = 0;   // total waiting time
+        int turnaround = 0;// completion time (arrival = 0)
+    };
+    std::vector<Stat> stats_;
+
+    // Tracks whether simulate() has been executed.
+    bool simulated_ = false;
+
 public:
     /**
      * @brief Construct a new SchedulerPriority object

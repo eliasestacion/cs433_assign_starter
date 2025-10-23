@@ -18,6 +18,15 @@
 class SchedulerFCFS : public Scheduler {
 private:
     // TODO: add necessary member variables here for your implementation
+ std::vector<PCB> tasks_;
+    struct Stat {
+        std::string name;
+        int burst = 0;
+        int waiting = 0;
+        int turnaround = 0;
+    };
+    std::vector<Stat> stats_;
+    bool simulated_ = false;
 
 public:
     /**
