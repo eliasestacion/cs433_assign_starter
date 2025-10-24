@@ -17,6 +17,28 @@ class SchedulerPriorityRR : public Scheduler {
 private:
     // TODO: add necessary member variables here for your implementation
 
+    // Time quantum for RR (>= 1)
+    int quantum_ = 10;
+
+    // Snapshot of processes in input order.
+    std::vector<PCB> tasks_;
+
+    // Per-process accounting for results.
+    struct Stat {
+        std::string name;     // process name
+        int priority = 0;     // priority value
+        int burst = 0;        // original CPU burst
+        int remaining = 0;    // remaining CPU time
+        int waiting = 0;      // total waiting time
+        int turnaround = 0;   // completion time (arrival = 0)
+        int last_finish = 0;  // time when it last left CPU (for waiting calc)
+        size_t original_idx = 0; // stable ordering within same priority
+    };
+    std::vector<Stat> stats_;
+
+    bool simulated_ = false;
+
+
 public:
     /**
      * @brief Construct a new SchedulerPriority object
