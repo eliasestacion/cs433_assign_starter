@@ -1,40 +1,44 @@
 /**
 * Assignment 3: CPU Scheduler
  * @file scheduler_fcfs.cpp
- * @author ??? (TODO: your name)
- * @brief This Scheduler class implements the FCSF scheduling algorithm.
+ * @author Elias Estacion and Meliton Rojas
+ * @brief This Scheduler class implements the FCFS scheduling algorithm.
  * @version 0.1
  */
 //You must complete the all parts marked as "TODO". Delete "TODO" after you are done.
 // Remember to add sufficient and clear comments to your code
 
 #include "scheduler_fcfs.h"
-
-// TODO: add implementation of SchedulerFCFS constructor, destrcutor and 
-// member functions init, print_results, and simulate here
 #include <iostream>
 #include <iomanip>
 
-// constructor / destructor
-
+/**
+ * @brief Default constructor for FCFS scheduler.
+ * 
+ */
 SchedulerFCFS::SchedulerFCFS() = default;
 
+/**
+ * @brief Default destructor for FCFS scheduler.
+ */
 SchedulerFCFS::~SchedulerFCFS() = default;
 
-// lifecycle 
-
+/**
+ * @brief To initialize the scheduler with the given process list.
+ * @param process_list The Vector of PCBs read from input. All processes are assumed to arrive at time 0.
+ * 
+ */
 void SchedulerFCFS::init(std::vector<PCB>& process_list) {
-    // Preserve the input (file) order as the arrival order.
-    // All processes are assumed to arrive at time 0.
     tasks_.assign(process_list.begin(), process_list.end());
     stats_.clear();
     simulated_ = false;
 }
 
+/**
+ * @brief To run the non-preemptive FCFS simulation until all the tasks finish.
+ * @details The waiting time for current task equals the sum of bursts of all the tasks before it.
+ */
 void SchedulerFCFS::simulate() {
-    // Non-preemptive FCFS:
-    //   - waiting time of a process = total CPU time of all earlier processes
-    //   - turnaround time           = completion time - arrival (arrival = 0)
     stats_.clear();
     stats_.reserve(tasks_.size());
 
@@ -43,6 +47,10 @@ void SchedulerFCFS::simulate() {
         Stat s;
         s.name = p.name;
         s.burst = static_cast<int>(p.burst_time);
+
+        // Shows the FCFS execution
+        std:: cout << "Running Process " << s.name
+                   << " for " << s.burst << " time units" << endl;
 
         s.waiting = time;     // waited while earlier tasks ran
         time += s.burst;      // run to completion
@@ -54,6 +62,10 @@ void SchedulerFCFS::simulate() {
     simulated_ = true;
 }
 
+/**
+ * @brief To print each task's waiting time and turnaround time, as well as the averages.
+ * 
+ */
 void SchedulerFCFS::print_results() {
     if (!simulated_) {
         std::cerr << "Error: simulate() has not been run.\n";

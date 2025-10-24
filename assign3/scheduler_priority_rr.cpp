@@ -1,7 +1,7 @@
 /**
 * Assignment 3: CPU Scheduler
  * @file scheduler_priority_rr.cpp
- * @author ??? (TODO: your name)
+ * @author Elias Estacion and Meliton Rojas
  * @brief This Scheduler class implements the Priority RR scheduling algorithm.
  * @version 0.1
  */
@@ -9,32 +9,38 @@
 // Remember to add sufficient and clear comments to your code
 
 #include "scheduler_priority_rr.h"
-
-// TODO: add implementation of SchedulerPriorityRR constructor, destrcutor and 
-// member functions init, print_results, and simulate here
-
 #include <algorithm>
 #include <deque>
 #include <iostream>
 #include <iomanip>
 
-// constructor / destructor
-
+/**
+ * @brief Default constructor for a priority based Round-Robin scheduler.
+ * @param time_quantum The quantum size (>=1) used within each priority level.
+ */
 SchedulerPriorityRR::SchedulerPriorityRR(int time_quantum)
     : quantum_(time_quantum > 0 ? time_quantum : 1) {}
 
+/**
+ * @brief Default destructor for priority based Round-Robin scheduler
+ */
 SchedulerPriorityRR::~SchedulerPriorityRR() = default;
 
-
-
+/**
+ * @brief Initialize the scheduler with process in input (file) order
+ * @param process_list Vector of PCBs assuming arrival of all processes at t=0.
+ */
 void SchedulerPriorityRR::init(std::vector<PCB>& process_list) {
-    // Preserve input (file) order; all processes arrive at t=0.
     tasks_.assign(process_list.begin(), process_list.end());
     stats_.clear();
     simulated_ = false;
 }
 
-
+/**
+* @brief Simulate priority within Round Robin: makes sure that higher priorities run first;
+* within the same priority, apply Round Robin using the quantum that has been configured.
+* @details This preserves the input order among equal priorities.
+*/
 void SchedulerPriorityRR::simulate() {
     // Build per-process accounting table.
     stats_.clear();
@@ -48,8 +54,8 @@ void SchedulerPriorityRR::simulate() {
         s.remaining    = s.burst;
         s.waiting      = 0;
         s.turnaround   = 0;
-        s.last_finish  = 0;          // arrival at t=0
-        s.original_idx = i;          // stable tie-breaking within a priority
+        s.last_finish  = 0;         
+        s.original_idx = i;         
         stats_.push_back(s);
     }
 
@@ -87,6 +93,11 @@ void SchedulerPriorityRR::simulate() {
             // Waiting accumulated since last time it left CPU (or since t=0).
             ps.waiting += (time - ps.last_finish);
 
+            // Shows the priority based Round Robin execution
+            std::cout << "Running Process " << ps.name
+                      << " for " << ((ps.remaining < quantum_) ? ps.remaining : quantum_)
+                      << " time units" << endl;
+
             // Run for a quantum or until completion.
             int slice = (ps.remaining < quantum_) ? ps.remaining : quantum_;
             time += slice;
@@ -104,8 +115,10 @@ void SchedulerPriorityRR::simulate() {
     simulated_ = true;
 }
 
-// print results
-
+/**
+ * @brief Print per-task results and averages for priority based Round Robin sched
+ * 
+ */
 void SchedulerPriorityRR::print_results() {
     if (!simulated_) {
         std::cerr << "Error: simulate() has not been run.\n";

@@ -1,7 +1,7 @@
 /**
 * Assignment 3: CPU Scheduler
  * @file scheduler_priority.h
- * @author ??? (TODO: your name)
+ * @author Elias Estacion and Meliton Rojas
  * @brief This Scheduler class implements the Priority scheduling algorithm.
  * @version 0.1
  */
@@ -16,8 +16,6 @@
 
 class SchedulerPriority : public Scheduler {
 private:
-    // TODO: add necessary member variables here for your implementation
-
     // Snapshot of processes in input order.
     std::vector<PCB> tasks_;
 
