@@ -1,7 +1,7 @@
 /**
 * Assignment 3: CPU Scheduler
  * @file scheduler_rr.h
- * @author ??? (TODO: your name)
+ * @author Elias Estacion and Meliton Rojas
  * @brief This Scheduler class implements the RoundRobin (RR) scheduling algorithm.
  * @version 0.1
  */
@@ -10,40 +10,42 @@
 //
 
 #include "scheduler_rr.h"
-
-// TODO: add implementation of SchedulerRR constructor, destrcutor and 
-// member functions init, print_results, and simulate here
-
 #include <queue>
 #include <iostream>
 #include <iomanip>
 
 // constructor destructor
-
+/**
+ * @brief Default constructor for a Round Robin scheduler.
+ * @param time_quantum Quantum size in time units
+ */
 SchedulerRR::SchedulerRR(int time_quantum)
     : quantum_(time_quantum > 0 ? time_quantum : 1) {}
 
+/**
+ * @brief Default constructor for a Round Robin scheduler.
+ */
 SchedulerRR::~SchedulerRR() = default;
 
-
+/**
+ * @brief Initialize the Round Robin scheduler with the process list.
+ * @param process_list Vector of PCBs and assumes all arrive at t=0 in file order.
+ */
 void SchedulerRR::init(std::vector<PCB>& process_list) {
-    // Preserve the given (file) order as the initial ready-queue order.
     tasks_.assign(process_list.begin(), process_list.end());
     stats_.clear();
     simulated_ = false;
 }
 
-
+/**
+ * @brief Simulate preemptive Roun Robin with a fixed quantum until all tasks complete.
+ * @details It also uses a ready queue of indices. Waiting time accumulates between dispatches.
+ */
 void SchedulerRR::simulate() {
-    // Preemptive Round Robin with fixed quantum.
-    // Accounting:
-    //   - When a process is (re)dispatched at 'time', add the time since it last
-    //     left the CPU to waiting: waiting += (time - last_finish).
-    //   - On completion, turnaround = finish time (arrival is 0).
     stats_.clear();
     stats_.reserve(tasks_.size());
 
-    std::queue<int> rq; // indices into stats_
+    std::queue<int> rq; 
 
     // Initialize per-process stats and enqueue in input order.
     for (size_t i = 0; i < tasks_.size(); ++i) {
@@ -53,7 +55,7 @@ void SchedulerRR::simulate() {
         s.remaining  = s.burst;
         s.waiting    = 0;
         s.turnaround = 0;
-        s.last_finish = 0; // arrival at t=0
+        s.last_finish = 0;
         stats_.push_back(s);
         rq.push(static_cast<int>(i));
     }
@@ -69,6 +71,11 @@ void SchedulerRR::simulate() {
 
         // Run for one quantum or until completion, whichever is smaller.
         int slice = (ps.remaining < quantum_) ? ps.remaining : quantum_;
+
+        // Shows the Round Robin execution
+        std::cout << "Running Process " << ps.name
+                  << " for " << slice << " time units" << endl;
+                  
         time += slice;
         ps.remaining -= slice;
 
@@ -85,8 +92,9 @@ void SchedulerRR::simulate() {
     simulated_ = true;
 }
 
-// Print results
-
+/**
+ * @brief Prints the task results and averages for the RR scheduler.
+ */
 void SchedulerRR::print_results() {
     if (!simulated_) {
         std::cerr << "Error: simulate() has not been run.\n";
