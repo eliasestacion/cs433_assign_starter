@@ -1,13 +1,15 @@
 /**
 * Assignment 4: Producer Consumer Problem
  * @file buffer.h
- * @author ??? (TODO: your name)
+ * @author Elias Estacion and Meliton Rojas
  * @brief header file for the buffer class
  * @version 0.1
  */
 
 #ifndef ASSIGN4_BUFFER_H
 #define ASSIGN4_BUFFER_H
+
+#include pthread.h
 
 // Define the data type of the buffer items
 typedef int buffer_item;
@@ -18,6 +20,16 @@ typedef int buffer_item;
 class Buffer {
 private:
     // TODO: Add your implementation of the buffer class here
+    buffer_item* buffer; // pointer to the buffer array
+    int size; // size of the buffer 
+    int count; // number of items in the buffer
+    int in; // index for the next item to be inserted
+    int out; // index for the next item to be removed
+
+    // Monitor synchronization
+    pthread_mutex_t mtx;     // protects all fields above
+    pthread_cond_t not_full; // signaled when space becomes available
+    pthread_cond_t not_empty;// signaled when an item becomes available
 
 public:
     /**

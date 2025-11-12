@@ -1,7 +1,7 @@
 /**
 * Assignment 4: Producer Consumer Problem
  * @file main.cpp
- * @author ??? (TODO: your name)
+ * @author Elias Estacion and Meliton Rojas
  * @brief The main program for the producer consumer problem.
  * @version 0.1
  */
