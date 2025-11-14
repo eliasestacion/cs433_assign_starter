@@ -9,7 +9,7 @@
 #ifndef ASSIGN4_BUFFER_H
 #define ASSIGN4_BUFFER_H
 
-#include pthread.h
+#include <pthread.h>
 
 // Define the data type of the buffer items
 typedef int buffer_item;
@@ -19,7 +19,6 @@ typedef int buffer_item;
  */
 class Buffer {
 private:
-    // TODO: Add your implementation of the buffer class here
     buffer_item* buffer; // pointer to the buffer array
     int size; // size of the buffer 
     int count; // number of items in the buffer
@@ -42,6 +41,10 @@ public:
      * @brief Destroy the Buffer object
      */
     ~Buffer();
+
+    // 
+    Buffer(const Buffer&) = delete;
+    Buffer& operator=(const Buffer&) = delete;
 
     /**
      * @brief Insert an item into the buffer

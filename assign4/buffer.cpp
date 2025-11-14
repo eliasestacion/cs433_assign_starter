@@ -6,48 +6,80 @@
  * @version 0.1
  */
 
-// You must complete the all parts marked as "TODO". Delete "TODO" after you are done.
-// Remember to add sufficient and clear comments to your code
 #include "buffer.h"
 #include <iostream>
-// TODO: Add your implementation of the buffer class here
 
+/**
+ * @brief Constructor for the Buffer
+ * 
+ * Creates an empty circular buffer and initializes the mutex
+ * and condition variables used for thread synchronization
+ */
 Buffer::Buffer(int sz) : buffer(new buffer_item[sz]), size(sz), count(0), in(0), out(0) {
     pthread_mutex_init(&mtx, nullptr);
     pthread_cond_init(&not_full, nullptr);
     pthread_cond_init(&not_empty, nullptr);
 }
+
+/**
+ * @brief Destroyer for the  Buffer
+ * 
+ * Cleans up the mutex, condition variables, and deletes
+ * the dynamically allocated array
+ */
 Buffer::~Buffer() {
-    
     pthread_mutex_destroy(&mtx);
     pthread_cond_destroy(&not_full);
     pthread_cond_destroy(&not_empty);
     delete[] buffer;
 }
-void Buffer::insert(buffer_item item) {
+
+/**
+ * @brief Inter an item into the buffer
+ * If the buffer is full, the thread waits until space is available
+ * 
+ * @param item The item to insert
+ *
+ */
+bool Buffer::insert_item(buffer_item item) {
     pthread_mutex_lock(&mtx);
+
     while (count == size) {
         pthread_cond_wait(&not_full, &mtx);
     }
     buffer[in] = item;
     in = (in + 1) % size;
     count++;
+
     pthread_cond_signal(&not_empty);
     pthread_mutex_unlock(&mtx);
+    return true;
 }
 
-buffer_item Buffer::remove() {
+/**
+ * @brief Remove an item from the buffer
+ * If the buffer is empty, the thread waits until an item appears
+ * 
+ * @param item Pointer to store the removed item
+ * 
+ */
+bool Buffer::remove_item(buffer_item *item) {
     pthread_mutex_lock(&mtx);
     while (count == 0) {
         pthread_cond_wait(&not_empty, &mtx);
     }
-    buffer_item item = buffer[out];
+    *item = buffer[out];
     out = (out + 1) % size;
-    count--;
+    --count;
+
     pthread_cond_signal(&not_full);
     pthread_mutex_unlock(&mtx);
-    return item;
+    return true;
 }
+
+/**
+ * @brief Get the maximum size of the buffer
+ */
 int Buffer::get_size() {
     pthread_mutex_lock(&mtx);
     int s = size;
@@ -55,6 +87,9 @@ int Buffer::get_size() {
     return s;
 }
 
+/**
+ * @brief Get the current count of items stored
+ */
 int Buffer::get_count() {
     pthread_mutex_lock(&mtx);
     int c = count;
@@ -62,6 +97,9 @@ int Buffer::get_count() {
     return c;
 }
 
+/**
+ * @brief Check if the buffer is empty
+ */
 bool Buffer::is_empty() {
     pthread_mutex_lock(&mtx);
     bool empty = (count == 0);
@@ -69,19 +107,31 @@ bool Buffer::is_empty() {
     return empty;
 }
 
+/**
+ * @brief Check if the buffer is full
+ */
 bool Buffer::is_full() {
     pthread_mutex_lock(&mtx);
     bool full = (count == size);
     pthread_mutex_unlock(&mtx);
     return full;
 }
+
+/**
+ * @brief Print the current content of the buffer (FIFO order)
+ */
 void Buffer::print_buffer() {
     pthread_mutex_lock(&mtx);
-    std::cout << "Buffer contents: ";
-    for (int i = 0; i < count; i++) {
-        std::cout << buffer[(out + i) % size] << " ";
+
+    std::cout << "Buffer: [";
+    for (int i = 0; i < count; ++i) {
+        int idx = (out + i) % size;
+        std::cout << buffer[idx];
+        if (i < count - 1) {
+            std::cout << ", ";
+        }
     }
-    std::cout << std::endl;
+    std::cout << "]" << std::endl;
     pthread_mutex_unlock(&mtx);
 }
 
