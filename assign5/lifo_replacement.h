@@ -1,7 +1,7 @@
 /**
 * Assignment 5: Page replacement algorithms
  * @file lifo_replacement.h
- * @author ??? (TODO: your name)
+ * @author Elias Estacion and Meliton Rojas
  * @brief A class implementing the LIFO page replacement algorithms
  * @version 0.1
  */

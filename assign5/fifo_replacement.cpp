@@ -1,7 +1,7 @@
 /**
 * Assignment 5: Page replacement algorithms
  * @file fifo_replacement.cpp
- * @author ??? (TODO: your name)
+ * @author Elias Estacion and Meliton Rojas
  * @brief A class implementing the FIFO page replacement algorithms
  * @version 0.1
  */
@@ -15,6 +15,7 @@ FIFOReplacement::FIFOReplacement(int num_pages, int num_frames)
 : Replacement(num_pages, num_frames)
 {
     // TODO: Add additional implementation code
+    
 }
 
 // TODO: Add your implementations for desctructor, load_page, replace_page here
