@@ -111,6 +111,9 @@ int main(int argc, char *argv[]) {
     }
     in2.close();
 
+    // Print the total number of references before running algorithms
+    std::cout << "Total number of references: " << large_refs.size() << std::endl;
+
     std::cout << "****************Simulate FIFO replacement****************************" << std::endl;
 
     // Create a new simulation using FIFO replacement algorithm
@@ -128,7 +131,7 @@ int main(int argc, char *argv[]) {
 
     // Print FIFO statistics and runtime.
     fifo_vm.print_statistics();
-    std::cout << "Total run time (seconds): \t " << elapsed_fifo << std::endl;
+    std::cout << "Elapsed time = " << elapsed_fifo << " seconds" << std::endl;
 
     std::cout << "****************Simulate LIFO replacement****************************" << std::endl;
 
@@ -147,7 +150,7 @@ int main(int argc, char *argv[]) {
 
     // Print LIFO statistics and runtime.
     lifo_vm.print_statistics();
-    std::cout << "Total run time (seconds): \t " << elapsed_lifo << std::endl;
+    std::cout << "Elapsed time = " << elapsed_lifo << " seconds" << std::endl;
 
     std::cout << "****************Simulate LRU replacement****************************" << std::endl; {
 
@@ -165,7 +168,7 @@ int main(int argc, char *argv[]) {
 
         // Print LRU statistics and runtime.
         lru_vm.print_statistics();
-        std::cout << "Total run time (seconds): \t " << elapsed_lru << std::endl;
+        std::cout << "Elapsed time = " << elapsed_lru << " seconds" << std::endl;
     }
     return 0;
 }
