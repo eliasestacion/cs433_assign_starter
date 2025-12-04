@@ -28,7 +28,7 @@ LRUReplacement::~LRUReplacement()
 }
 
 /**
- * @brieg Handle an access to a page that is already in physical memory.
+ * @brief Handle an access to a page that is already in physical memory.
  * @param page_num The logical page number.
  * 
  * For the LRU algorithm, we need to update the usage order of pages.
@@ -81,7 +81,7 @@ void LRUReplacement::load_page(int page_num) {
  * @return Selected victim page number
  */
 int LRUReplacement::replace_page(int page_num) {
-    // Thw victim is the least recently used page at the front of the list
+    // The victim is the least recently used page at the front of the list
     int victim_page = lru_list.front();
     lru_list.pop_front();
     // Remove the victim from the map
