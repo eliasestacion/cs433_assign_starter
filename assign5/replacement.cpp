@@ -70,6 +70,7 @@ bool Replacement::access_page(int page_num, bool is_write)
     if (free_frames > 0) {
         load_page(page_num);
         --free_frames;
+        ++next_free_frame;
     } else {   
         replace_page(page_num);
         ++num_page_replacements;

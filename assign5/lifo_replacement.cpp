@@ -25,10 +25,22 @@ LIFOReplacement::~LIFOReplacement() {
 // Access an invalid page, but free frames are available
 void LIFOReplacement::load_page(int page_num) {
     // TODO: Add necessary code here
+    int frame_number = next_free_frame;
+    page_table[page_num].frame_num = frame_number;
+    page_table[page_num].valid = true;
+    lifo_stack.push(page_num);
+    
 }
 
 // Access an invalid page and no free frames are available
 int LIFOReplacement::replace_page(int page_num) {
     // TODO: Add necessary code here
+    int victim_page = lifo_stack.top();
+    lifo_stack.pop();
+    int frame_number = page_table[victim_page].frame_num;
+    page_table[victim_page].valid = false;
+    page_table[page_num].frame_num = frame_number;
+    page_table[page_num].valid = true;
+    lifo_stack.push(page_num);
     return 0;
 }
