@@ -1,7 +1,7 @@
 /**
 * Assignment 5: Page replacement algorithms
  * @file lru_replacement.cpp
- * @author Elias Estacion and Meliton Rojas
+ * @author Elias Estacion and Meliton Rojas 
  * @brief A class implementing the LRU page replacement algorithms
  * @version 0.1
  */

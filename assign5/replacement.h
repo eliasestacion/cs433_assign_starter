@@ -1,7 +1,7 @@
 /**
 * Assignment 5: Page replacement algorithms
  * @file replacement.h
- * @author Elias Estacion and Meliton Rojas
+ * @author Elias Estacion and Meliton Rojas 
  * @brief A base class for different page replacement algorithms.
  * @version 0.1
  */

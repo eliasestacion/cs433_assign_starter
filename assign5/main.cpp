@@ -104,6 +104,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    // Read all logical addresses from the large reference file.
     std::vector<int> large_refs;
     while (in2 >> val) {
         large_refs.push_back(val);
@@ -112,6 +113,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "****************Simulate FIFO replacement****************************" << std::endl;
 
+    // Create a new simulation using FIFO replacement algorithm
     FIFOReplacement fifo_vm(num_pages, num_frames);
     clock_t start_fifo = clock();
 
@@ -130,6 +132,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "****************Simulate LIFO replacement****************************" << std::endl;
 
+    // Create a new simulation using LIFO replacement algorithm
     LIFOReplacement lifo_vm(num_pages, num_frames);
     clock_t start_lifo = clock();
 
@@ -148,6 +151,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "****************Simulate LRU replacement****************************" << std::endl; {
 
+        // Create a new simulation using LRU replacement algorithm
         LRUReplacement lru_vm(num_pages, num_frames);
         clock_t start_lru = clock();
 
@@ -163,5 +167,5 @@ int main(int argc, char *argv[]) {
         lru_vm.print_statistics();
         std::cout << "Total run time (seconds): \t " << elapsed_lru << std::endl;
     }
-
+    return 0;
 }
