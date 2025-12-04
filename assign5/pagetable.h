@@ -1,7 +1,7 @@
 /**
 * Assignment 5: Page replacement algorithms
  * @file pagetable.h
- * @author Elias Estacion and Meliton Rojas
+ * @author Elias Estacion and Meliton Rojas 
  * @brief This class represents a traditional pagetable data structure.
  * @version 0.1
  */
@@ -14,12 +14,12 @@
 #include <vector>
 using namespace std;
 
-// A page table entry
 /**
  * @brief A page table entry. This class is used to represent a page table entry.
  * @details Each page has one entry in the page table. It contains the following fields:
- * - frame number
- * - valid bit
+ * - frame number: index of the physical frame
+ * - valid bit: whether the page is currently laoded in physical memory
+ * - dirty bit: whether the page has been modified
  */
 class PageEntry
 {
@@ -34,7 +34,7 @@ public:
 
 
 /**
- * @brief A page table is like an array of page entries.
+ * @brief A page table is like an array (vector) of PageEntry objects.
  * The size of the page table should equal to the number of pages in logical memory
  */
 class PageTable
@@ -43,17 +43,22 @@ private:
     // A page table is like an array of page entries.
     vector<PageEntry> pages;
 public:
-    // Constructor
+    /**
+     * @brief Constructor for a PageTable with a given number of logical pages.
+     * @param num_pages Total number of logical pages in the simulation.
+     */
     PageTable(int num_pages);
-    // Destructor
-    ~PageTable();
 
-	// TODO: Add your implementation of the page table here
+    /**
+     * @brief Destructor for the PageTable.
+     * @details No manual cleanup is needed since wesre using only a vector.
+     */
+    ~PageTable();
 
     /**
      * @brief Access a page in the page table.
-     * @param i
-     * @return
+     * @param i Logical page number to access.
+     * @return Reference to the PageEntry at index i.
      */
     PageEntry& operator [] (int i) {
         return pages[i];
