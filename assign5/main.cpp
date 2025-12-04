@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <vector>
+#include <ctime>
 
 #include "fifo_replacement.h"
 #include "lru_replacement.h"
@@ -96,16 +97,71 @@ int main(int argc, char *argv[]) {
     // Test 2: Read and simulate the large list of logical addresses from the input file "large_refs.txt"
     std::cout << "\n================================Test 2==================================================\n";
 
+    std::ifstream in2;
+    in2.open("large_refs.txt");
+    if (!in2.is_open()) {
+        std::cerr << "Cannot open large_refs.txt to read. Please check your path." << std::endl;
+        return 1;
+    }
+
+    std::vector<int> large_refs;
+    while (in2 >> val) {
+        large_refs.push_back(val);
+    }
+    in2.close();
+
     std::cout << "****************Simulate FIFO replacement****************************" << std::endl;
-    // TODO: Add your code to calculate number of page faults using FIFO replacement algorithm
-    // TODO: print the statistics and run-time
+
+    FIFOReplacement fifo_vm(num_pages, num_frames);
+    clock_t start_fifo = clock();
+
+    // Simulate all references using FIFO.
+    for(std::vector<int>::const_iterator it = large_refs.begin(); it != large_refs.end(); ++it) {
+        int page_num = (*it) >> page_offset_bits;
+        fifo_vm.access_page(page_num, 0);
+    }
+
+    clock_t end_fifo = clock();
+    double elapsed_fifo = double(end_fifo - start_fifo) / CLOCKS_PER_SEC;
+
+    // Print FIFO statistics and runtime.
+    fifo_vm.print_statistics();
+    std::cout << "Total run time (seconds): \t " << elapsed_fifo << std::endl;
 
     std::cout << "****************Simulate LIFO replacement****************************" << std::endl;
-    // TODO: Add your code to calculate number of page faults using LIFO replacement algorithm
-    // TODO: print the statistics and run-time
 
-    std::cout << "****************Simulate LRU replacement****************************" << std::endl;
-    // TODO: Add your code to calculate number of page faults using LRU replacement algorithm
-    // TODO: print the statistics and run-time
+    LIFOReplacement lifo_vm(num_pages, num_frames);
+    clock_t start_lifo = clock();
+
+    // Simulate all references using LIFO.
+    for(std::vector<int>::const_iterator it = large_refs.begin(); it != large_refs.end(); ++it) {
+        int page_num = (*it) >> page_offset_bits;
+        lifo_vm.access_page(page_num, 0);
+    }
+
+    clock_t end_lifo = clock();
+    double elapsed_lifo = double(end_lifo - start_lifo) / CLOCKS_PER_SEC;   
+
+    // Print LIFO statistics and runtime.
+    lifo_vm.print_statistics();
+    std::cout << "Total run time (seconds): \t " << elapsed_lifo << std::endl;
+
+    std::cout << "****************Simulate LRU replacement****************************" << std::endl; {
+
+        LRUReplacement lru_vm(num_pages, num_frames);
+        clock_t start_lru = clock();
+
+        // Simulate all references using LRU.
+        for(std::vector<int>::const_iterator it = large_refs.begin(); it != large_refs.end(); ++it) {
+            int page_num = (*it) >> page_offset_bits;
+            lru_vm.access_page(page_num, 0);
+        }
+        clock_t end_lru = clock();
+        double elapsed_lru = double(end_lru - start_lru) / CLOCKS_PER_SEC;
+
+        // Print LRU statistics and runtime.
+        lru_vm.print_statistics();
+        std::cout << "Total run time (seconds): \t " << elapsed_lru << std::endl;
+    }
 
 }

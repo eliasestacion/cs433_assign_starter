@@ -13,18 +13,27 @@
 // Remember to add comments to your code
 
 #include "replacement.h"
+#include <list>
+#include <unordered_map>
 
 /**
  * @brief A class to simulate the least recently used (LRU) page replacement algorithm.
+ * @details This class is a subclass of Replacement and overrides the following virtual functions:
+ * - touch_page()
+ * - load_page()
+ * - replace_page()
  */
 class LRUReplacement : public Replacement
 {
-	// TODO: Add your implementation to this class
+private:
+    // Member variable to track the usage order of pages
+    std::list<int> lru_list; // List to maintain LRU order
+    std::unordered_map<int, std::list<int>::iterator> page_map; // Map to quickly access list iterators
 public:
 	/**
-	 * @brief Constructor
-	 * @param num_pages 
-	 * @param num_frames 
+	 * @brief Construct a new LRUReplacement object.
+	 * @param num_pages Total number of logical pages.
+	 * @param num_frames Total number of available frames.
 	 */
 	LRUReplacement(int num_pages, int num_frames);
 	
@@ -34,7 +43,7 @@ public:
     virtual ~LRUReplacement();
 
     /**
-     * @brief Accesss a page alreay in physical memory
+     * @brief Accesss a page already in physical memory
      * It may be overridden in a subclass 
      * @param page_num The logical page number.
      */

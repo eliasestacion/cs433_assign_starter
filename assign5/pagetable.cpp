@@ -10,21 +10,29 @@
 
 #include "pagetable.h"
 
-// TODO: Add your implementation of PageTable
-// Constructor
-// TODO: Add your code
+/**
+ * @brief Constructor for a PageTable with a fixed number of logical pages.
+ * @param num_pages Total number of logical pages in the system.
+ * 
+ * The vector pages is resized to hold num_pages entries. Each entry has the following:
+ * - frame_num initialized to -1 (indicating no frame assigned)
+ * - valid bit initialized to false (indicating page is not in physical memory)
+ * - dirty bit initialized to false (indicating page is clean)
+ */
 PageTable::PageTable(int num_pages) : pages(num_pages) {
-    
-    // Initialize all page entries as invald pages and unmapped
+    // Initialize all page entries as invalid pages and unmapped
     for (int i = 0; i < num_pages; ++i) {
-        pages[i].frame_num = -1; // no frame yet
-        pages[i].valid = false; // not in physical memory
-        pages[i].dirty = false; // clean page
+        pages[i].frame_num = -1;
+        pages[i].valid = false; 
+        pages[i].dirty = false; 
     }
 }
 
-// Destructor
-// TODO: Add your code
+/**
+ * @brief Destructor for the PageTable.
+ * @details No manual cleanup is needed because the vector will automatically
+ * release its memory when this object is destroyed.
+ */
 PageTable::~PageTable() {
     
 }
