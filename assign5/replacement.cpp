@@ -71,6 +71,7 @@ bool Replacement::access_page(int page_num, bool is_write)
         load_page(page_num);
         --free_frames;
     } else {   
+        replace_page(page_num);
         ++num_page_replacements;
     }
 
@@ -88,7 +89,7 @@ bool Replacement::access_page(int page_num, bool is_write)
  * - total number of page replacements that occurred
  */
 void Replacement::print_statistics() const {
-		std::cout << "Number of references: \t\t"  << num_references << ::endl;
+		std::cout << "Number of references: \t\t"  << num_references << std::endl;
 		std::cout << "Number of page faults: \t\t" << num_page_faults << std::endl;
 		std::cout << "Number of page replacements: \t"  << num_page_replacements << std::endl;
 }
