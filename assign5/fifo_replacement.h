@@ -17,10 +17,10 @@
 
 /**
  * @brief A class to simulate FIFO page replacement algorithm.
+ * The oldest loaded page is always selected as the victim page for replacement.
  */
 class FIFOReplacement : public Replacement {
 private:
-    // TODO: Add necessary member variables to this class
     std::queue<int> fifo_queue;  // Queue to keep track of pages in FIFO order
     
 public:
@@ -37,15 +37,13 @@ public:
     virtual ~FIFOReplacement();
 
     /**
-     * @brief Access an invalid page, but free frames are available.
-     * Assign the page to an available  frame, not replacement needed
+     * @brief Assign the page to an available  frame, with no replacement needed
      * @param page_num The logical page number.
      */
     virtual void load_page(int page_num);
 
     /**
-     * @brief Access an invalid page, and there is no free frame.
-     * Replace the page with the page that has been in memory the longest.
+     * @brief Replace the page with the page that has been in memory the longest.
      * @param page_num The logical page number.
      * @return Selected victim page #
      */

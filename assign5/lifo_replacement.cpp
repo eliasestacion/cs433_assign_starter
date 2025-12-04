@@ -10,37 +10,52 @@
 
 #include "lifo_replacement.h"
 
-// TODO: Add your implementation here
+/**
+ * @brief Constructor for LIFOReplacement
+ * Calls base class constructor to initialize core fields.
+ */
 LIFOReplacement::LIFOReplacement(int num_pages, int num_frames)
 : Replacement(num_pages, num_frames)
 {
-    // TODO: Add additional implementation code
+
 }
 
-// TODO: Add your implementations for desctructor, load_page, replace_page here
+/**
+ * @brief Destructor for LIFOReplacement
+ */
 LIFOReplacement::~LIFOReplacement() {
-    // TODO: Add necessary code here
+    
 }
 
-// Access an invalid page, but free frames are available
+/**
+ * @brief Loads a page into a free frame when available.
+ * The page is pushed onto the stack as the newest element.
+ * @param page_num The logical page number to load.
+ */
 void LIFOReplacement::load_page(int page_num) {
-    // TODO: Add necessary code here
     int frame_number = next_free_frame;
     page_table[page_num].frame_num = frame_number;
     page_table[page_num].valid = true;
+    // Track this page as the most recent one
     lifo_stack.push(page_num);
     
 }
 
-// Access an invalid page and no free frames are available
+/**
+ * @brief Performs page replacement using LIFO strategy.
+ * The most recently loaded page is selected as the victim page.
+ * @param page_num The logical page number to load.
+ * @return Selected victim page #
+ */
 int LIFOReplacement::replace_page(int page_num) {
-    // TODO: Add necessary code here
     int victim_page = lifo_stack.top();
     lifo_stack.pop();
     int frame_number = page_table[victim_page].frame_num;
     page_table[victim_page].valid = false;
     page_table[page_num].frame_num = frame_number;
     page_table[page_num].valid = true;
+
+    // New page becomes the newest for future LIFO decisions
     lifo_stack.push(page_num);
     return 0;
 }

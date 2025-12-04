@@ -17,10 +17,10 @@
 
 /**
  * @brief A class to simulate LIFO (last in first out) page replacement algorithm.
+ * Uses a stack where the newest page is replaced first.
  */
 class LIFOReplacement : public Replacement {
 private:
-    // TODO: Add necessary member variables to this class
     std::stack<int> lifo_stack;  // Stack to keep track of pages in LIFO order
 
 public:
@@ -37,15 +37,13 @@ public:
     virtual ~LIFOReplacement();
 
     /**
-     * @brief Access an invalid page, but free frames are available.
-     * Assign the page to an available  frame, not replacement needed
+     * @brief Assign the page to an available  frame, not replacement needed
      * @param page_num The logical page number.
      */
     virtual void load_page(int page_num);
 
     /**
-     * @brief Access an invalid page, and there is no free frame.
-     * Replace the page with the page that has been in memory the longest.
+     * @brief Replace the page with the page that has been in memory the longest.
      * @param page_num The logical page number.
      * @return Selected victim page #
      */
